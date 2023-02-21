@@ -1,0 +1,40 @@
+def scytale_encrypt(plaintext, key):
+    # ключ - кол-во строк
+
+    # Рассчитываем кол-во столбцов
+    num_rows = (len(plaintext) + key - 1) // key
+
+    # Добавление пробелов в конец при необходимости
+    plaintext += ' ' * (num_rows * key - len(plaintext))
+
+    # Запись текста спиралью (записываем каждую key букву)
+    ciphertext = ''
+    for i in range(key):
+        for j in range(num_rows):
+            ciphertext += plaintext[j * key + i]
+
+    return ciphertext
+
+
+def scytale_decrypt(ciphertext, key):
+    # Рассчитываем кол-во столбцов
+    num_rows = (len(ciphertext) + key - 1) // key
+
+    # Запись текста (записываем каждую num_rows букву)
+    plaintext = ''
+    for i in range(num_rows):
+        for j in range(key):
+            plaintext += ciphertext[i + j * num_rows]
+
+    return plaintext.strip()
+
+
+plaintext = 'textcoding'
+key = 4
+ciphertext = scytale_encrypt(plaintext, key)
+print(ciphertext)
+
+ciphertext = 'tcneogxd ti '
+key = 4
+plaintext = scytale_decrypt(ciphertext, key)
+print(plaintext)

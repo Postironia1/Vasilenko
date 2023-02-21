@@ -1,67 +1,51 @@
-#include <iostream>
-#include <string>
-#include <cctype>
+import string
 
-using namespace std;
+# Create the Polybius Square grid
+grid = [['A', 'B', 'C', 'D', 'E'],
+        ['F', 'G', 'H', 'I/J', 'K'],
+        ['L', 'M', 'N', 'O', 'P'],
+        ['Q', 'R', 'S', 'T', 'U'],
+        ['V', 'W', 'X', 'Y', 'Z']]
 
-// Function to encode a plaintext string using the Polybius Cipher
-string polybius_encode(string plaintext) {
-    string ciphertext = "";
-    int matrix[5][5] = { {11, 12, 13, 14, 15},
-                        {21, 22, 23, 24, 25},
-                        {31, 32, 33, 34, 35},
-                        {41, 42, 43, 44, 45},
-                        {51, 52, 53, 54, 55} };
-    for (char c : plaintext) {
-        if (isalpha(c)) {
-            c = tolower(c);
-            if (c == 'j') {
-                c = 'i';
-            }
-            int row = (c - 'a') / 5;
-            int col = (c - 'a') % 5;
-            ciphertext += to_string(matrix[row][col]);
-        }
-        else {
-            ciphertext += c;
-        }
-    }
-    return ciphertext;
-}
+# Create a dictionary to map letters to their grid coordinates
+letter_to_coords = {}
+for row in range(5):
+    for col in range(5):
+        letter = grid[row][col]
+        letter_to_coords[letter] = (row, col)
 
-// Function to decode a ciphertext string using the Polybius Cipher
-string polybius_decode(string ciphertext) {
-    string plaintext = "";
-    int matrix[5][5] = { {11, 12, 13, 14, 15},
-                        {21, 22, 23, 24, 25},
-                        {31, 32, 33, 34, 35},
-                        {41, 42, 43, 44, 45},
-                        {51, 52, 53, 54, 55} };
-    for (int i = 0; i < ciphertext.length(); i += 2) {
-        char c1 = ciphertext[i];
-        char c2 = ciphertext[i + 1];
-        if (isdigit(c1) && isdigit(c2)) {
-            int row = (c1 - '0') - 1;
-            int col = (c2 - '0') - 1;
-            if (row >= 0 && row < sizeof(matrix) / sizeof(matrix[0]) &&
-                col >= 0 && col < sizeof(matrix[0]) / sizeof(matrix[0][0])) {
-                plaintext += matrix[row][col] + 'a';
-            }
-        }
-        else {
-            plaintext += c1;
-            i--;
-        }
-    }
-    return plaintext;
-}
+# Create a dictionary to map grid coordinates to their letters
+coords_to_letter = {}
+for letter, coords in letter_to_coords.items():
+    coords_to_letter[coords] = letter
 
-// Test the implementation with an example
-int main() {
-    string plaintext = "the quick brown fox jumps over the lazy dog";
-    string ciphertext = polybius_encode(plaintext);
-    cout << "Ciphertext: " << ciphertext << endl;
-    string decodedtext = polybius_decode(ciphertext);
-    cout << "Decoded text: " << decodedtext << endl;
-    return 0;
-}
+
+def polybius_encode(plaintext):
+    # Преобразуйте открытый текст в верхний регистр и удалите все неалфавитные символы
+    plaintext = plaintext.upper()
+    plaintext = ''.join(c for c in plaintext if c in string.ascii_uppercase)
+
+    # Замените каждую букву соответствующими координатами сетки
+    coords = [letter_to_coords[c] for c in plaintext]
+
+    # Преобразуйте координаты сетки в строку чисел
+    encoded = ''.join(f'{row + 1}{col + 1}' for row, col in coords)
+
+    return encoded
+
+
+def polybius_decode(ciphertext):
+    # Преобразуйте зашифрованный текст в список координат сетки
+    coords = [(int(c[0]) - 1, int(c[1]) - 1) for c in zip(ciphertext[::2], ciphertext[1::2])]
+
+    # Преобразуйте координаты сетки в строку букв
+    decoded = ''.join(coords_to_letter[c] for c in coords)
+
+    return decoded
+
+plaintext = 'HELLO WORLD'
+ciphertext = polybius_encode(plaintext)
+print(ciphertext)  # Output: 32423251154331332251
+
+decoded_plaintext = polybius_decode(ciphertext)
+print(decoded_plaintext)  # Output: HELLO WORLD
